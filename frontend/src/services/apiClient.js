@@ -1,60 +1,88 @@
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || ""
+// src/services/apiClient.js
 
-let authToken = null
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
 
+let authToken = null;
+
+// Build full URL: base + path   e.g.  http://127.0.0.1:8000 + /api/signup
 const buildUrl = (path) => {
   if (!API_BASE_URL) {
-    return null
+    throw new Error("API base URL is not configured");
   }
-  return `${API_BASE_URL.replace(/\/$/, "")}/${path.replace(/^\//, "")}`
-}
+
+  const base = API_BASE_URL.replace(/\/$/, "");      // remove trailing /
+  const cleanPath = path.replace(/^\//, "");         // remove starting /
+  return `${base}/${cleanPath}`;
+};
 
 const request = async (method, path, body) => {
-  const url = buildUrl(path)
-  if (!url) {
-    throw new Error("API base URL is not configured")
-  }
+  const url = buildUrl(path);
 
-  const headers = {}
+  const headers = {
+    Accept: "application/json",
+  };
 
-  if (authToken) {
-    headers.Authorization = `Bearer ${authToken}`
-  }
-
+  // Only set JSON header when it's not FormData
   if (body !== undefined && !(body instanceof FormData)) {
-    headers["Content-Type"] = "application/json"
+    headers["Content-Type"] = "application/json";
+  }
+
+  // Send Sanctum token when logged in
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
   }
 
   const options = {
     method,
-    headers
-  }
+    headers,
+  };
 
   if (body !== undefined) {
-    options.body = body instanceof FormData ? body : JSON.stringify(body)
+    options.body = body instanceof FormData ? body : JSON.stringify(body);
   }
 
-  const response = await fetch(url, options)
+  const response = await fetch(url, options);
+
+  // Read response safely
+  const rawText = await response.text();
+  let data = null;
+
+  if (rawText) {
+    try {
+      data = JSON.parse(rawText);
+    } catch {
+      data = rawText;
+    }
+  }
+
   if (!response.ok) {
-    const message = await response.text()
-    throw new Error(message || `Request failed with status ${response.status}`)
+    // Try to show Laravel error message if present
+    const message =
+      (data && data.message) ||
+      data ||
+      `Request failed with status ${response.status}`;
+
+    throw new Error(message);
   }
+
+  // 204 No Content
   if (response.status === 204) {
-    return null
+    return null;
   }
-  return response.json()
-}
+
+  return data;
+};
 
 export const apiClient = {
   isEnabled: Boolean(API_BASE_URL),
   setAuthToken: (token) => {
-    authToken = token || null
+    authToken = token || null;
   },
   clearAuthToken: () => {
-    authToken = null
+    authToken = null;
   },
   get: (path) => request("GET", path),
   post: (path, body) => request("POST", path, body),
   patch: (path, body) => request("PATCH", path, body),
-  delete: (path) => request("DELETE", path)
-}
+  delete: (path) => request("DELETE", path),
+};

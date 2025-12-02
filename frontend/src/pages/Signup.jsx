@@ -81,6 +81,8 @@ const Signup = () => {
         name: trimmedName,
         email: trimmedEmail,
         password: trimmedPassword,
+        password_confirmation: trimmedPassword,  // ⭐ REQUIRED
+
         role: formState.role
       })
 

@@ -51,7 +51,8 @@ const Login = () => {
     }
 
     try {
-      await login({ email: trimmedEmail, password: trimmedPassword, remember: formState.remember })
+      await login({ email: trimmedEmail, password: trimmedPassword })
+
       navigate(destination, { replace: true })
     } catch (error) {
       setLocalError(error.message)
