@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAuth } from '../context/AuthContext.jsx'
 import NotificationBell from '../components/NotificationBell.jsx'
 import { useTheme } from '../context/ThemeContext.jsx'
@@ -11,8 +12,6 @@ const navLinks = [
   { label: 'For Brokers', to: '/brokers' },
   { label: 'Contact', to: '/contact' }
 ]
-
-const brandIcon = '🏡'
 
 const MainLayout = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -32,8 +31,8 @@ const MainLayout = () => {
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-14 sm:h-16">
             <Link to="/" className="text-lg sm:text-2xl font-bold text-green-900 flex items-center">
-              <span className="text-2xl sm:text-3xl mr-1 sm:mr-2" aria-hidden="true">
-                {brandIcon}
+              <span className="text-2xl sm:text-3xl mr-1 sm:mr-2 text-green-700" aria-hidden="true">
+                <FontAwesomeIcon icon="house-chimney" />
               </span>
               <span className="hidden xs:inline">EstatePortal</span>
               <span className="xs:hidden">Estate</span>
@@ -54,25 +53,34 @@ const MainLayout = () => {
             </div>
 
             <div className="hidden sm:flex items-center space-x-3">
-              <button
-                type="button"
-                onClick={toggleTheme}
+              <label
+                className="theme-switch"
+                title="Right-click to follow system preference"
                 onContextMenu={(event) => {
                   event.preventDefault()
                   resetToSystem()
                 }}
-                className={`theme-toggle ${isDarkMode ? '' : 'theme-toggle--dark'}`}
-                aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-                title="Right-click to follow system preference"
               >
-                <span aria-hidden="true" className="theme-toggle__icon">
-                  {isDarkMode ? '☀️' : '🌙'}
+                <span className="sr-only">Toggle theme</span>
+                <input
+                  type="checkbox"
+                  aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                  checked={isDarkMode}
+                  onChange={toggleTheme}
+                />
+                <span className="theme-switch__slider" aria-hidden="true">
+                  <span className="theme-switch__star theme-switch__star--1" />
+                  <span className="theme-switch__star theme-switch__star--2" />
+                  <span className="theme-switch__star theme-switch__star--3" />
+                  <svg viewBox="0 0 16 16" className="theme-switch__cloud">
+                    <path
+                      transform="matrix(.77976 0 0 .78395-299.99-418.63)"
+                      fill="#fff"
+                      d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
+                    />
+                  </svg>
                 </span>
-                <span className="theme-toggle__details">
-                  <span className="theme-toggle__label">{isDarkMode ? 'Dark Mode' : 'Light Mode'}</span>
-                  <span className="theme-toggle__hint">Tap to switch</span>
-                </span>
-              </button>
+              </label>
               {isAuthenticated ? (
                 <>
                   <NotificationBell />
@@ -123,7 +131,7 @@ const MainLayout = () => {
               onClick={() => setMobileMenuOpen((open) => !open)}
             >
               <span className="sr-only">Toggle navigation</span>
-              {mobileMenuOpen ? '✕' : '☰'}
+              <FontAwesomeIcon icon={mobileMenuOpen ? 'xmark' : 'bars'} />
             </button>
           </div>
 
@@ -131,15 +139,34 @@ const MainLayout = () => {
             <div className="lg:hidden py-4 space-y-3 mobile-nav-panel mt-3">
               <div className="flex items-center justify-between border border-green-200/50 rounded-lg px-3 py-2">
                 <span className="text-sm font-medium text-gray-600">Appearance</span>
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  className="flex items-center gap-2 text-sm font-semibold text-green-700"
-                  aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                <label
+                  className="theme-switch"
+                  title="Right-click to follow system preference"
+                  onContextMenu={(event) => {
+                    event.preventDefault()
+                    resetToSystem()
+                  }}
                 >
-                  <span aria-hidden="true">{isDarkMode ? '☀️' : '🌙'}</span>
-                  <span>{isDarkMode ? 'Light' : 'Dark'}</span>
-                </button>
+                  <span className="sr-only">Toggle theme</span>
+                  <input
+                    type="checkbox"
+                    aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
+                    checked={isDarkMode}
+                    onChange={toggleTheme}
+                  />
+                  <span className="theme-switch__slider" aria-hidden="true">
+                    <span className="theme-switch__star theme-switch__star--1" />
+                    <span className="theme-switch__star theme-switch__star--2" />
+                    <span className="theme-switch__star theme-switch__star--3" />
+                    <svg viewBox="0 0 16 16" className="theme-switch__cloud">
+                      <path
+                        transform="matrix(.77976 0 0 .78395-299.99-418.63)"
+                        fill="#fff"
+                        d="m391.84 540.91c-.421-.329-.949-.524-1.523-.524-1.351 0-2.451 1.084-2.485 2.435-1.395.526-2.388 1.88-2.388 3.466 0 1.874 1.385 3.423 3.182 3.667v.034h12.73v-.006c1.775-.104 3.182-1.584 3.182-3.395 0-1.747-1.309-3.186-2.994-3.379.007-.106.011-.214.011-.322 0-2.707-2.271-4.901-5.072-4.901-2.073 0-3.856 1.202-4.643 2.925"
+                      />
+                    </svg>
+                  </span>
+                </label>
               </div>
               {navLinks.map((link) => (
                 <NavLink

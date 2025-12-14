@@ -1,18 +1,19 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import LandingPage from './pages/LandingPage'
 import MainLayout from './layouts/MainLayout'
-import Marketplace from './pages/Marketplace'
-import Owners from './pages/Owners'
-import Brokers from './pages/Brokers'
+import Brokers from './pages/brokers/Brokers'
 import Contact from './pages/Contact'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
 import NotFound from './pages/NotFound'
-import PropertyDetail from './pages/PropertyDetail'
 import ProtectedRoute from './components/ProtectedRoute'
 import Unauthorized from './pages/Unauthorized'
-import Admin from './pages/Admin'
+import Admin from './pages/admin/Admin'
 import Profile from './pages/Profile'
+import MarketplacePage from './pages/buyers/MarketplacePage'
+import PropertyDetailPage from './pages/buyers/PropertyDetailPage'
+import OwnerDashboard from './pages/owners/OwnerDashboard'
+import OwnerCreateListing from './pages/owners/OwnerCreateListing'
 
 function App() {
   return (
@@ -20,13 +21,21 @@ function App() {
       <Routes>
         <Route element={<MainLayout />}>
           <Route index element={<LandingPage />} />
-          <Route path="marketplace" element={<Marketplace />} />
-          <Route path="marketplace/:propertyId" element={<PropertyDetail />} />
+          <Route path="marketplace" element={<MarketplacePage />} />
+          <Route path="marketplace/:propertyId" element={<PropertyDetailPage />} />
           <Route
             path="owners"
             element={
               <ProtectedRoute roles={["owner"]}>
-                <Owners />
+                <OwnerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="owners/create-listing"
+            element={
+              <ProtectedRoute roles={["owner"]}>
+                <OwnerCreateListing />
               </ProtectedRoute>
             }
           />

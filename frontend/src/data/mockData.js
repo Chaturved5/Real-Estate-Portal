@@ -1,3 +1,5 @@
+
+
 export const properties = [
   {
     id: 'P-1001',

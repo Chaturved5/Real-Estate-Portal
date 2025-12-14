@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useAuth } from '../context/AuthContext.jsx'
 
 const roleOptions = [
@@ -249,15 +250,21 @@ const Signup = () => {
                   <h2 className="text-lg font-semibold text-green-900">Why join us?</h2>
                   <ul className="space-y-3">
                     <li className="flex items-start gap-3">
-                      <span className="mt-0.5 text-green-700">🌿</span>
+                      <span className="mt-0.5 text-green-700">
+                        <FontAwesomeIcon icon="leaf" />
+                      </span>
                       <span>Unified workspace to manage listings, bookings, reviews, and payouts.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="mt-0.5 text-green-700">🔐</span>
+                      <span className="mt-0.5 text-green-700">
+                        <FontAwesomeIcon icon="lock" />
+                      </span>
                       <span>Secure payments with real-time tracking and role-based access.</span>
                     </li>
                     <li className="flex items-start gap-3">
-                      <span className="mt-0.5 text-green-700">🤝</span>
+                      <span className="mt-0.5 text-green-700">
+                        <FontAwesomeIcon icon="handshake" />
+                      </span>
                       <span>Collaborate with verified owners, agents, and buyers in one place.</span>
                     </li>
                   </ul>
