@@ -95,7 +95,7 @@ const LandingPage = () => {
 
   const handleViewProperty = (propertyId) => {
     setToast(`Opening details for property #${propertyId}`);
-    navigate(`/marketplace/${propertyId}`);
+    navigate(`/property/${propertyId}`);
   };
 
   const handleListProperty = () => {

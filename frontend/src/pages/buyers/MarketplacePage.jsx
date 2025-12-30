@@ -124,25 +124,25 @@ const MarketplacePage = () => {
   }
 
   const handleViewProperty = (propertyId) => {
-    navigate(`/marketplace/${propertyId}`)
+    navigate(`/property/${propertyId}`)
   }
 
   const resultsLabel = filteredProperties.length === 1 ? "1 property matches your filters" : `${filteredProperties.length} properties match your filters`
 
   return (
-    <div className="py-10 sm:py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="page-panel p-6 sm:p-8 lg:p-10 space-y-8">
+    <div className="py-10 sm:py-12 max-[517px]:py-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 max-[517px]:px-3">
+        <div className="page-panel p-6 sm:p-8 lg:p-10 max-[517px]:p-4 space-y-8 max-[517px]:space-y-6">
           <header className="space-y-3">
             <p className="text-sm font-semibold uppercase tracking-wider text-green-700">Marketplace</p>
-            <h1 className="text-3xl sm:text-4xl font-bold text-green-900">Browse Exclusive Listings</h1>
-            <p className="text-gray-600 text-sm sm:text-base max-w-3xl">
+            <h1 className="text-3xl sm:text-4xl max-[517px]:text-2xl font-bold text-green-900">Browse Exclusive Listings</h1>
+            <p className="text-gray-600 text-sm sm:text-base max-[517px]:text-[13px] max-w-3xl">
               Filter by location, budget, property type, and size to discover listings that match your investment strategy or dream home vision.
             </p>
           </header>
 
-          <section className="bg-white rounded-2xl shadow-sm p-6 sm:p-8 space-y-6">
-            <form className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" onSubmit={(event) => event.preventDefault()}>
+          <section className="bg-white rounded-2xl shadow-sm p-6 sm:p-8 max-[517px]:p-4 space-y-6 max-[517px]:space-y-4">
+            <form className="grid gap-4 max-[517px]:gap-3 sm:grid-cols-2 lg:grid-cols-4" onSubmit={(event) => event.preventDefault()}>
               <div>
                 <label className="block text-xs font-semibold text-green-900 uppercase tracking-wide mb-2" htmlFor="marketplace-location">
                   Location
@@ -153,7 +153,7 @@ const MarketplacePage = () => {
                   value={filters.location}
                   onChange={handleFilterChange("location")}
                   placeholder="Search by city..."
-                  className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 max-[517px]:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                 />
               </div>
               <div>
@@ -164,7 +164,7 @@ const MarketplacePage = () => {
                   id="marketplace-type"
                   value={filters.type}
                   onChange={handleFilterChange("type")}
-                  className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 max-[517px]:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                 >
                   <option value="">All Types</option>
                   {typeCatalog.map(({ type }) => (
@@ -186,7 +186,7 @@ const MarketplacePage = () => {
                   value={filters.minPrice}
                   onChange={handleFilterChange("minPrice")}
                   placeholder="2.5"
-                  className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 max-[517px]:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                 />
               </div>
               <div>
@@ -201,7 +201,7 @@ const MarketplacePage = () => {
                   value={filters.maxPrice}
                   onChange={handleFilterChange("maxPrice")}
                   placeholder="12"
-                  className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 max-[517px]:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                 />
               </div>
               <div>
@@ -212,7 +212,7 @@ const MarketplacePage = () => {
                   id="marketplace-bedrooms"
                   value={filters.bedrooms}
                   onChange={handleFilterChange("bedrooms")}
-                  className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="w-full border border-gray-200 rounded-lg px-3 sm:px-4 py-2.5 max-[517px]:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                 >
                   {bedroomOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -223,7 +223,7 @@ const MarketplacePage = () => {
               </div>
             </form>
 
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2 max-[517px]:gap-1.5">
               {typeCatalog.map(({ type, count }) => {
                 const isActive = filters.type === type
                 return (
@@ -231,7 +231,7 @@ const MarketplacePage = () => {
                     key={type}
                     type="button"
                     onClick={() => handleQuickType(type)}
-                    className={`px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-full border transition-colors ${
+                    className={`px-3 sm:px-4 max-[517px]:px-3 py-2 max-[517px]:py-1.5 text-xs sm:text-sm rounded-full border transition-colors ${
                       isActive ? "bg-green-600 border-green-600 text-white" : "border-green-200 text-green-700 hover:bg-green-50"
                     }`}
                   >
@@ -241,7 +241,7 @@ const MarketplacePage = () => {
               })}
             </div>
 
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm text-gray-600">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-sm text-gray-600 max-[517px]:gap-3">
               <div className="flex flex-wrap items-center gap-3">
                 <span className="font-medium text-green-900">{resultsLabel}</span>
                 {activeFilters > 0 && <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs">{activeFilters} active filters</span>}
@@ -254,7 +254,7 @@ const MarketplacePage = () => {
                   id="marketplace-sort"
                   value={sortBy}
                   onChange={(event) => setSortBy(event.target.value)}
-                  className="border border-gray-200 rounded-lg px-3 sm:px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                  className="border border-gray-200 rounded-lg px-3 sm:px-4 py-2 max-[517px]:py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                 >
                   {sortOptions.map((option) => (
                     <option key={option.value} value={option.value}>
@@ -266,7 +266,7 @@ const MarketplacePage = () => {
                   type="button"
                   onClick={resetFilters}
                   disabled={activeFilters === 0 && sortBy === "recommended"}
-                  className={`text-sm font-medium border rounded-lg px-3 sm:px-4 py-2 transition-colors ${
+                  className={`text-sm font-medium border rounded-lg px-3 sm:px-4 py-2 max-[517px]:py-2 transition-colors ${
                     activeFilters === 0 && sortBy === "recommended"
                       ? "text-gray-400 border-gray-200 cursor-not-allowed"
                       : "text-green-700 border-green-200 hover:bg-green-50"
@@ -278,18 +278,18 @@ const MarketplacePage = () => {
             </div>
           </section>
 
-          <section className="grid gap-6 lg:grid-cols-[minmax(0,1fr),320px]">
+          <section className="grid gap-6 max-[517px]:gap-4 lg:grid-cols-[minmax(0,1fr),320px]">
             <div className="space-y-6">
               {filteredProperties.length ? (
-                <div className="grid gap-4 sm:gap-6 sm:grid-cols-2">
+                <div className="grid gap-4 max-[517px]:gap-3 sm:gap-6 sm:grid-cols-2">
                   {filteredProperties.map((property) => (
                     <PropertyCard key={property.id} property={property} onView={handleViewProperty} />
                   ))}
                 </div>
               ) : (
-                <div className="bg-white rounded-2xl shadow-sm p-8 text-center space-y-4">
-                  <p className="text-2xl font-semibold text-green-900">No matching properties yet</p>
-                  <p className="text-gray-600 text-sm sm:text-base">
+                <div className="bg-white rounded-2xl shadow-sm p-8 max-[517px]:p-5 text-center space-y-4">
+                  <p className="text-2xl max-[517px]:text-xl font-semibold text-green-900">No matching properties yet</p>
+                  <p className="text-gray-600 text-sm sm:text-base max-[517px]:text-[13px]">
                     Try broadening your filters or resetting them to explore all available listings across the marketplace.
                   </p>
                   <div className="flex justify-center">
@@ -306,7 +306,7 @@ const MarketplacePage = () => {
             </div>
 
             <aside className="space-y-6">
-              <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+              <div className="bg-white rounded-2xl shadow-sm p-6 max-[517px]:p-4 space-y-4">
                 <h2 className="text-lg font-semibold text-green-900">Price Snapshot</h2>
                 {priceStats ? (
                   <dl className="space-y-3 text-sm text-gray-600">
@@ -328,7 +328,7 @@ const MarketplacePage = () => {
                 )}
               </div>
 
-              <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
+              <div className="bg-white rounded-2xl shadow-sm p-6 max-[517px]:p-4 space-y-4">
                 <h2 className="text-lg font-semibold text-green-900">Property Mix</h2>
                 {typeBreakdown.length ? (
                   <ul className="space-y-3 text-sm text-gray-600">

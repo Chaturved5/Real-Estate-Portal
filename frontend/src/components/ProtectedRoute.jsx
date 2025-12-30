@@ -1,10 +1,11 @@
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 
-const ProtectedRoute = ({ roles, children }) => {
+const ProtectedRoute = ({ allowedRoles }) => {
   const { user, isAuthenticated, hydrating } = useAuth()
   const location = useLocation()
 
+  // Still restoring session from storage
   if (hydrating) {
     return (
       <div className="bg-amber-50 py-20">
@@ -15,15 +16,18 @@ const ProtectedRoute = ({ roles, children }) => {
     )
   }
 
+  // Not logged in -> redirect to login and preserve intended path
   if (!isAuthenticated) {
     return <Navigate to="/login" replace state={{ from: location }} />
   }
 
-  if (roles?.length && !roles.includes(user.role)) {
+  // Logged in but missing the required role
+  if (allowedRoles?.length && !allowedRoles.includes(user.role)) {
     return <Navigate to="/unauthorized" replace />
   }
 
-  return children
+  // Everything ok -> render nested route
+  return <Outlet />
 }
 
 export default ProtectedRoute

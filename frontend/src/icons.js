@@ -18,8 +18,10 @@ import {
   faStar,
   faArrowRightLong,
   faLeaf,
-  faLock
+  faLock,
+  faUser
 } from '@fortawesome/free-solid-svg-icons'
+import { faFacebook, faInstagram, faLinkedin, faTwitter } from '@fortawesome/free-brands-svg-icons'
 
 library.add(
   faHouseChimney,
@@ -40,5 +42,10 @@ library.add(
   faStar,
   faArrowRightLong,
   faLeaf,
-  faLock
+  faLock,
+  faUser,
+  faFacebook,
+  faInstagram,
+  faLinkedin,
+  faTwitter
 )

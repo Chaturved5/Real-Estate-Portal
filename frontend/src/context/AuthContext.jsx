@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { apiClient } from "../services/apiClient";
+import { mockAuth } from "../services/mockAuth";
 
 const AuthContext = createContext(null);
 
@@ -17,8 +18,9 @@ const STORAGE_KEY = "estateportal.session";
 // Where to redirect after login based on role
 const defaultRedirectByRole = {
   admin: "/admin",
-  owner: "/owners",
+  owner: "/owner/dashboard",
   agent: "/brokers",
+  broker: "/brokers",
   buyer: "/marketplace",
 };
 
@@ -28,6 +30,8 @@ export const AuthProvider = ({ children }) => {
   const [hydrating, setHydrating] = useState(true);
   const [authLoading, setAuthLoading] = useState(false);
   const [authError, setAuthError] = useState(null);
+
+  const offlineMode = !apiClient.isEnabled;
 
   // Save token + user in memory + localStorage + apiClient
   const persistSession = useCallback((nextToken, nextUser) => {
@@ -67,8 +71,13 @@ export const AuthProvider = ({ children }) => {
       apiClient.setAuthToken(parsed.token);
 
       try {
-        // Ask backend "who am I?"
-        const remoteUser = await apiClient.get("/api/user");
+        let remoteUser = null;
+        if (offlineMode) {
+          remoteUser = await mockAuth.getUserFromToken(parsed.token);
+        } else {
+          remoteUser = await apiClient.get("/api/user");
+        }
+
         if (remoteUser) {
           persistSession(parsed.token, remoteUser);
         } else {
@@ -99,10 +108,18 @@ export const AuthProvider = ({ children }) => {
       setAuthLoading(true);
 
       try {
-        const response = await apiClient.post("/api/login", {
-          email: credentials.email,
-          password: credentials.password,
-        });
+        let response = null;
+        if (offlineMode) {
+          response = await mockAuth.login({
+            email: credentials.email,
+            password: credentials.password,
+          });
+        } else {
+          response = await apiClient.post("/api/login", {
+            email: credentials.email,
+            password: credentials.password,
+          });
+        }
 
         if (!response?.token || !response?.user) {
           throw new Error("Invalid login response from server");
@@ -128,13 +145,23 @@ export const AuthProvider = ({ children }) => {
       setAuthLoading(true);
 
       try {
-        const response = await apiClient.post("/api/signup", {
-          name: payload.name,
-          email: payload.email,
-          role: payload.role,
-          password: payload.password,
-          password_confirmation: payload.password, // Laravel's "confirmed" rule
-        });
+        let response = null;
+        if (offlineMode) {
+          response = await mockAuth.register({
+            name: payload.name,
+            email: payload.email,
+            role: payload.role,
+            password: payload.password,
+          });
+        } else {
+          response = await apiClient.post("/api/signup", {
+            name: payload.name,
+            email: payload.email,
+            role: payload.role,
+            password: payload.password,
+            password_confirmation: payload.password,
+          });
+        }
 
         if (!response?.token || !response?.user) {
           throw new Error("Invalid registration response");
@@ -159,7 +186,11 @@ export const AuthProvider = ({ children }) => {
     setAuthLoading(true);
 
     try {
-      await apiClient.post("/api/logout");
+      if (offlineMode) {
+        await mockAuth.logout();
+      } else {
+        await apiClient.post("/api/logout");
+      }
     } catch (error) {
       console.warn("Logout failed on server, clearing local session anyway.", error);
     } finally {
@@ -173,7 +204,9 @@ export const AuthProvider = ({ children }) => {
     if (!token) return null;
 
     try {
-      const refreshedUser = await apiClient.get("/api/user");
+      const refreshedUser = offlineMode
+        ? await mockAuth.getUserFromToken(token)
+        : await apiClient.get("/api/user");
       if (refreshedUser) {
         persistSession(token, refreshedUser);
       }
@@ -185,11 +218,22 @@ export const AuthProvider = ({ children }) => {
   }, [persistSession, token]);
 
   // For now, we’ll skip profile update / change password (no backend yet)
-  const updateProfile = async () => {
+  const updateProfile = async (updates) => {
+    if (!token) throw new Error("Not authenticated");
+    if (offlineMode) {
+      const updated = await mockAuth.updateProfile(token, updates);
+      persistSession(token, updated);
+      return updated;
+    }
     throw new Error("Profile update API not implemented yet.");
   };
 
-  const changePassword = async () => {
+  const changePassword = async (payload) => {
+    if (!token) throw new Error("Not authenticated");
+    if (offlineMode) {
+      await mockAuth.changePassword(token, payload);
+      return true;
+    }
     throw new Error("Change password API not implemented yet.");
   };
 

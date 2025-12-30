@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import PropertyCard from "../../components/PropertyCard"
 import { useMarketplace } from "../../context/MarketplaceContext.jsx"
 import { useNotifications } from "../../context/NotificationContext.jsx"
+import { useAuth } from "../../context/AuthContext.jsx"
 
 const BOOKING_STATUS_OPTIONS = ["pending", "confirmed", "cancelled"]
 const PAYMENT_STATUS_OPTIONS = ["captured", "pending", "refunded"]
@@ -36,6 +37,7 @@ const Modal = ({ title, children, onClose }) => (
 const PropertyDetailPage = () => {
   const navigate = useNavigate()
   const { propertyId = "" } = useParams()
+  const { isAuthenticated, user } = useAuth()
   const {
     properties,
     bookings,
@@ -126,12 +128,20 @@ const PropertyDetailPage = () => {
   const propertyPayments = useMemo(
     () => payments.filter((payment) => propertyBookings.some((booking) => booking.id === payment.bookingId)),
     [payments, propertyBookings]
+
   )
 
   const sortedPayments = useMemo(
     () => [...propertyPayments].sort((a, b) => (b.createdAt || "").localeCompare(a.createdAt || "")),
     [propertyPayments]
   )
+
+  const canTransact = isAuthenticated && (user?.isVerified ?? true) && (user?.profileComplete ?? true)
+  const transactionMessage = !isAuthenticated
+    ? "Please log in with your account to book or pay."
+    : !canTransact
+      ? "Complete profile verification to continue with bookings or payments."
+      : ""
 
   if (!property) {
     return (
@@ -158,6 +168,11 @@ const PropertyDetailPage = () => {
   const handleBookingSubmit = async (event) => {
     event.preventDefault()
     setBookingFeedback("")
+
+    if (!canTransact) {
+      setBookingFeedback(transactionMessage || "Please log in with a verified profile to book.")
+      return
+    }
 
     if (!bookingForm.startDate || !bookingForm.endDate || !bookingForm.amount) {
       setBookingFeedback("Please fill in check-in, check-out, and deposit details.")
@@ -311,6 +326,16 @@ const PropertyDetailPage = () => {
           <span aria-hidden="true">/</span>
           <span className="font-medium text-green-900">{property.title}</span>
         </nav>
+        <div className="mt-2">
+          <button
+            type="button"
+            onClick={() => navigate('/marketplace')}
+            className="inline-flex items-center gap-2 text-sm text-green-700 font-semibold hover:underline"
+          >
+            <span aria-hidden="true">←</span>
+            Back to marketplace
+          </button>
+        </div>
 
         {loading && (
           <div className="bg-white border border-amber-100 rounded-xl px-4 py-3 text-sm text-gray-600">
@@ -480,6 +505,11 @@ const PropertyDetailPage = () => {
                 Block the property with a refundable deposit. Our support team will confirm the visit and payment steps.
               </p>
               <form className="space-y-3" onSubmit={handleBookingSubmit}>
+                {!canTransact && (
+                  <p className="text-sm text-amber-800 bg-amber-100 border border-amber-200 rounded-lg px-3 py-2">
+                    {transactionMessage || "Please log in with a verified profile to continue."}
+                  </p>
+                )}
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wide text-green-900 mb-1" htmlFor="booking-start">
                     Check-in
@@ -489,6 +519,7 @@ const PropertyDetailPage = () => {
                     type="date"
                     value={bookingForm.startDate}
                     onChange={(event) => setBookingForm((previous) => ({ ...previous, startDate: event.target.value }))}
+                    disabled={!canTransact}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                   />
                 </div>
@@ -501,6 +532,7 @@ const PropertyDetailPage = () => {
                     type="date"
                     value={bookingForm.endDate}
                     onChange={(event) => setBookingForm((previous) => ({ ...previous, endDate: event.target.value }))}
+                    disabled={!canTransact}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                   />
                 </div>
@@ -515,6 +547,7 @@ const PropertyDetailPage = () => {
                     step="1000"
                     value={bookingForm.amount}
                     onChange={(event) => setBookingForm((previous) => ({ ...previous, amount: event.target.value }))}
+                    disabled={!canTransact}
                     className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                   />
                 </div>
@@ -523,6 +556,7 @@ const PropertyDetailPage = () => {
                     type="checkbox"
                     checked={collectDeposit}
                     onChange={(event) => setCollectDeposit(event.target.checked)}
+                    disabled={!canTransact}
                     className="h-4 w-4 rounded border-gray-300 text-green-700 focus:ring-green-600"
                   />
                   Capture deposit instantly (Razorpay)
@@ -530,7 +564,8 @@ const PropertyDetailPage = () => {
                 {bookingFeedback && <p className="text-sm text-green-700">{bookingFeedback}</p>}
                 <button
                   type="submit"
-                  className="w-full bg-green-700 text-white px-4 py-3 rounded-lg text-sm font-semibold hover:bg-green-800 transition-colors"
+                  disabled={!canTransact}
+                  className="w-full bg-green-700 text-white px-4 py-3 rounded-lg text-sm font-semibold hover:bg-green-800 transition-colors disabled:opacity-60"
                 >
                   Reserve Visit Slot
                 </button>
@@ -586,7 +621,8 @@ const PropertyDetailPage = () => {
                           <button
                             type="button"
                             onClick={() => setEditingBooking(booking)}
-                            className="self-start sm:self-auto text-xs font-semibold text-green-700 border border-green-200 rounded-lg px-3 py-1.5 hover:bg-green-50 transition-colors"
+                            disabled={!canTransact}
+                            className="self-start sm:self-auto text-xs font-semibold text-green-700 border border-green-200 rounded-lg px-3 py-1.5 hover:bg-green-50 transition-colors disabled:opacity-60"
                           >
                             Edit booking
                           </button>
@@ -617,7 +653,8 @@ const PropertyDetailPage = () => {
                           <button
                             type="button"
                             onClick={() => setEditingPayment(payment)}
-                            className="self-start sm:self-auto text-xs font-semibold text-green-700 border border-green-200 rounded-lg px-3 py-1.5 hover:bg-green-50 transition-colors"
+                            disabled={!canTransact}
+                            className="self-start sm:self-auto text-xs font-semibold text-green-700 border border-green-200 rounded-lg px-3 py-1.5 hover:bg-green-50 transition-colors disabled:opacity-60"
                           >
                             Edit payment
                           </button>
@@ -643,7 +680,7 @@ const PropertyDetailPage = () => {
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {relatedListings.map((listing) => (
-                <PropertyCard key={listing.id} property={listing} onView={(id) => navigate(`/marketplace/${id}`)} />
+                <PropertyCard key={listing.id} property={listing} onView={(id) => navigate(`/property/${id}`)} />
               ))}
             </div>
           </section>
