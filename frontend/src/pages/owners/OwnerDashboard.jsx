@@ -96,7 +96,7 @@ const OwnerDashboard = () => {
             </p>
             <div>
               <Link
-                to="/owners/create-listing"
+                to="/owner/listings/new"
                 className="inline-flex items-center justify-center bg-green-700 text-white px-5 py-3 rounded-lg text-sm font-semibold hover:bg-green-800 transition-colors"
               >
                 + Create Listing
@@ -174,7 +174,7 @@ const OwnerDashboard = () => {
                     <p className="text-sm text-gray-500">Snapshot of every property currently managed under {selectedOwner?.name || "this owner"}.</p>
                   </div>
                   <Link
-                    to="/owners/create-listing"
+                    to="/owner/listings/new"
                     className="inline-flex items-center justify-center bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-800 transition-colors"
                   >
                     + Add Listing

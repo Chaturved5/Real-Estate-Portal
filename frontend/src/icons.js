@@ -18,7 +18,19 @@ import {
   faStar,
   faArrowRightLong,
   faLeaf,
+<<<<<<< Updated upstream
   faLock
+=======
+  faLock,
+  faUser,
+  faGauge,
+  faIdCard,
+  faUsers,
+  faBuilding,
+  faTriangleExclamation,
+  faChartLine,
+  faCircleCheck
+>>>>>>> Stashed changes
 } from '@fortawesome/free-solid-svg-icons'
 
 library.add(
@@ -40,5 +52,21 @@ library.add(
   faStar,
   faArrowRightLong,
   faLeaf,
+<<<<<<< Updated upstream
   faLock
+=======
+  faLock,
+  faUser,
+  faGauge,
+  faIdCard,
+  faUsers,
+  faBuilding,
+  faTriangleExclamation,
+  faChartLine,
+  faCircleCheck,
+  faFacebook,
+  faInstagram,
+  faLinkedin,
+  faTwitter
+>>>>>>> Stashed changes
 )

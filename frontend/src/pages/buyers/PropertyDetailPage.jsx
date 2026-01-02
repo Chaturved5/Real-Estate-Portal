@@ -54,6 +54,7 @@ const PropertyDetailPage = () => {
   const { addNotification } = useNotifications()
 
   const property = getPropertyById(propertyId)
+  const buyerId = user?.id || 'BUY-4001'
 
   const owner = property ? ownersById.get(property.ownerId) : null
   const agent = property ? agentsById.get(property.agentId) : null
@@ -77,6 +78,9 @@ const PropertyDetailPage = () => {
   const [bookingForm, setBookingForm] = useState({ startDate: "", endDate: "", amount: bookingDefaults.amount })
   const [collectDeposit, setCollectDeposit] = useState(true)
   const [bookingFeedback, setBookingFeedback] = useState("")
+  const [showVisitModal, setShowVisitModal] = useState(false)
+  const [visitForm, setVisitForm] = useState({ date: "", timeSlot: "10:00-10:30", note: "" })
+  const [visitFeedback, setVisitFeedback] = useState("")
   const [reviewForm, setReviewForm] = useState({ name: "", rating: "5", comment: "" })
   const [reviewFeedback, setReviewFeedback] = useState("")
   const [managementFeedback, setManagementFeedback] = useState("")
@@ -173,7 +177,8 @@ const PropertyDetailPage = () => {
     try {
       const bookingPayload = {
         propertyId: property.id,
-        userId: "U-4001",
+        userId: buyerId,
+        bookingType: 'rental',
         status: collectDeposit ? "confirmed" : "pending",
         startDate: bookingForm.startDate,
         endDate: bookingForm.endDate,
@@ -216,6 +221,41 @@ const PropertyDetailPage = () => {
       setBookingForm({ startDate: "", endDate: "", amount: bookingDefaults.amount })
     } catch (submitError) {
       setBookingFeedback(submitError.message || "Unable to record booking right now. Please try again.")
+    }
+  }
+
+  const handleVisitSubmit = async (event) => {
+    event.preventDefault()
+    setVisitFeedback("")
+
+    if (!canTransact) {
+      setVisitFeedback(transactionMessage || "Please log in with a verified profile to book.")
+      return
+    }
+
+    if (!visitForm.date || !visitForm.timeSlot) {
+      setVisitFeedback("Please select a date and time slot.")
+      return
+    }
+
+    try {
+      await addBooking({
+        propertyId: property.id,
+        userId: buyerId,
+        bookingType: 'visit',
+        status: 'pending',
+        startDate: visitForm.date,
+        endDate: visitForm.date,
+        timeSlot: visitForm.timeSlot,
+        amount: 0,
+        paymentId: null,
+        notes: visitForm.note?.trim() || ''
+      })
+      setVisitFeedback("Visit request sent. The owner/agent will confirm the slot.")
+      setVisitForm({ date: "", timeSlot: "10:00-10:30", note: "" })
+      setShowVisitModal(false)
+    } catch (visitError) {
+      setVisitFeedback(visitError.message || "Unable to schedule visit right now.")
     }
   }
 
@@ -475,10 +515,27 @@ const PropertyDetailPage = () => {
 
           <aside className="space-y-6">
             <div className="bg-white rounded-2xl shadow-sm p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-green-900">Secure Your Booking</h2>
+              <h2 className="text-lg font-semibold text-green-900">Booking Options</h2>
               <p className="text-sm text-gray-600">
-                Block the property with a refundable deposit. Our support team will confirm the visit and payment steps.
+                Schedule a visit or request a rental booking. Deposits are captured securely once approved.
               </p>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowVisitModal(true)}
+                  className="w-full sm:w-auto inline-flex items-center justify-center border border-green-200 text-green-800 px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-50"
+                >
+                  Schedule visit
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCollectDeposit(true)}
+                  className="w-full sm:w-auto inline-flex items-center justify-center bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-800"
+                >
+                  Request rental booking
+                </button>
+              </div>
+
               <form className="space-y-3" onSubmit={handleBookingSubmit}>
                 <div>
                   <label className="block text-xs font-semibold uppercase tracking-wide text-green-900 mb-1" htmlFor="booking-start">
@@ -575,12 +632,19 @@ const PropertyDetailPage = () => {
                     {sortedBookings.map((booking) => (
                       <li key={booking.id} className="border border-amber-100 rounded-xl p-4 flex flex-col gap-2">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                          <div>
+                          <div className="flex items-center gap-2">
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-amber-50 border border-amber-200 text-[11px] font-semibold uppercase tracking-wide text-amber-800">
+                              {booking.bookingType === 'visit' ? 'Visit' : 'Rental'}
+                            </span>
                             <p className="font-semibold text-green-900">Booking #{booking.id}</p>
-                            <p className="text-xs text-gray-500">{booking.startDate} → {booking.endDate}</p>
                           </div>
                           <span className="text-xs font-semibold uppercase tracking-wide text-green-700">{booking.status}</span>
                         </div>
+                        <p className="text-xs text-gray-500">
+                          {booking.bookingType === 'visit'
+                            ? `${booking.startDate || booking.endDate} • ${booking.timeSlot || 'Slot TBC'}`
+                            : `${booking.startDate} → ${booking.endDate}`}
+                        </p>
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                           <p className="text-sm text-gray-600">Deposit: {formatCurrency(booking.amount)}</p>
                           <button
@@ -649,6 +713,68 @@ const PropertyDetailPage = () => {
           </section>
         )}
       </div>
+
+      {showVisitModal && (
+        <Modal title="Schedule a visit" onClose={() => setShowVisitModal(false)}>
+          <form className="space-y-4" onSubmit={handleVisitSubmit}>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-green-900 mb-1" htmlFor="visit-date">
+                  Visit date
+                </label>
+                <input
+                  id="visit-date"
+                  type="date"
+                  value={visitForm.date}
+                  onChange={(event) => setVisitForm((prev) => ({ ...prev, date: event.target.value }))}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wide text-green-900 mb-1" htmlFor="visit-slot">
+                  Time slot
+                </label>
+                <select
+                  id="visit-slot"
+                  value={visitForm.timeSlot}
+                  onChange={(event) => setVisitForm((prev) => ({ ...prev, timeSlot: event.target.value }))}
+                  className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+                >
+                  {['10:00-10:30', '12:00-12:30', '15:00-15:30', '18:00-18:30'].map((slot) => (
+                    <option key={slot} value={slot}>{slot}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wide text-green-900 mb-1" htmlFor="visit-note">
+                Note for owner/agent (optional)
+              </label>
+              <textarea
+                id="visit-note"
+                value={visitForm.note}
+                onChange={(event) => setVisitForm((prev) => ({ ...prev, note: event.target.value }))}
+                rows={3}
+                placeholder="Share preferred access instructions or questions"
+                className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
+              />
+            </div>
+            {visitFeedback && <p className="text-sm text-green-700">{visitFeedback}</p>}
+            <div className="flex items-center justify-end gap-3">
+              <button type="button" onClick={() => setShowVisitModal(false)} className="text-sm text-gray-500 hover:text-gray-700">
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="inline-flex items-center justify-center bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-green-800 transition-colors"
+              >
+                Send request
+              </button>
+            </div>
+          </form>
+        </Modal>
+      )}
 
       {editingBooking && (
         <Modal title={`Edit booking #${editingBooking.id}`} onClose={() => setEditingBooking(null)}>

@@ -121,6 +121,50 @@ export const AuthProvider = ({ children }) => {
     [persistSession]
   );
 
+  const loginAdmin = useCallback(
+    async (credentials) => {
+      setAuthError(null);
+      setAuthLoading(true);
+
+      try {
+        let response = null;
+        if (offlineMode) {
+          response = await mockAuth.login({
+            email: credentials.email,
+            password: credentials.password,
+          });
+
+          if (response?.user?.role !== "admin") {
+            throw new Error("Admin access only");
+          }
+        } else {
+          response = await apiClient.post("/api/admin/login", {
+            email: credentials.email,
+            password: credentials.password,
+          });
+        }
+
+        if (!response?.token || !response?.user) {
+          throw new Error("Invalid login response from server");
+        }
+
+        if (response.user.role !== "admin") {
+          throw new Error("Admin access only");
+        }
+
+        persistSession(response.token, response.user);
+        return response.user;
+      } catch (error) {
+        const message = error.message || "Unable to login right now";
+        setAuthError(message);
+        throw new Error(message);
+      } finally {
+        setAuthLoading(false);
+      }
+    },
+    [persistSession]
+  );
+
   // ---------- REGISTER / SIGNUP ----------
   const register = useCallback(
     async (payload) => {
@@ -202,6 +246,7 @@ export const AuthProvider = ({ children }) => {
       authLoading,
       authError,
       login,
+      loginAdmin,
       register,
       logout,
       refreshProfile,
@@ -217,6 +262,7 @@ export const AuthProvider = ({ children }) => {
       authLoading,
       authError,
       login,
+      loginAdmin,
       register,
       logout,
       refreshProfile,
