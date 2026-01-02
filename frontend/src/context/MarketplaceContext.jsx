@@ -4,10 +4,45 @@ import { apiClient } from '../services/apiClient'
 
 const MarketplaceContext = createContext()
 
+const STORAGE_KEYS = {
+  properties: 'estateportal.properties',
+  bookings: 'estateportal.bookings',
+  payments: 'estateportal.payments'
+}
+
+const loadFallbackState = (key, fallback) => {
+  if (typeof window === 'undefined') {
+    return fallback
+  }
+
+  try {
+    const serialized = window.localStorage.getItem(key)
+    if (!serialized) {
+      return fallback
+    }
+    const parsed = JSON.parse(serialized)
+    return Array.isArray(parsed) ? parsed : fallback
+  } catch (storageError) {
+    console.warn(`Failed to parse stored data for ${key}`, storageError) // eslint-disable-line no-console
+    return fallback
+  }
+}
+
+const persistState = (key, value) => {
+  if (typeof window === 'undefined') {
+    return
+  }
+  try {
+    window.localStorage.setItem(key, JSON.stringify(value))
+  } catch (storageError) {
+    console.warn(`Failed to persist ${key}`, storageError) // eslint-disable-line no-console
+  }
+}
+
 export const MarketplaceProvider = ({ children }) => {
-  const [properties, setProperties] = useState(seedProperties)
-  const [bookings, setBookings] = useState(seedBookings)
-  const [payments, setPayments] = useState(seedPayments)
+  const [properties, setProperties] = useState(() => loadFallbackState(STORAGE_KEYS.properties, seedProperties))
+  const [bookings, setBookings] = useState(() => loadFallbackState(STORAGE_KEYS.bookings, seedBookings))
+  const [payments, setPayments] = useState(() => loadFallbackState(STORAGE_KEYS.payments, seedPayments))
   const [loading, setLoading] = useState(apiClient.isEnabled)
   const [error, setError] = useState(null)
 
@@ -54,6 +89,27 @@ export const MarketplaceProvider = ({ children }) => {
     }
   }, [])
 
+  useEffect(() => {
+    if (apiClient.isEnabled) {
+      return
+    }
+    persistState(STORAGE_KEYS.properties, properties)
+  }, [properties])
+
+  useEffect(() => {
+    if (apiClient.isEnabled) {
+      return
+    }
+    persistState(STORAGE_KEYS.bookings, bookings)
+  }, [bookings])
+
+  useEffect(() => {
+    if (apiClient.isEnabled) {
+      return
+    }
+    persistState(STORAGE_KEYS.payments, payments)
+  }, [payments])
+
   const agentsById = useMemo(() => {
     const map = new Map()
     users
@@ -89,6 +145,66 @@ export const MarketplaceProvider = ({ children }) => {
   }
 
   const getPropertyById = (propertyId) => properties.find((property) => property.id === propertyId)
+
+  const generatePropertyId = () => {
+    const nextIndex = properties.length + 1001
+    return `P-${nextIndex}`
+  }
+
+  const createProperty = async (propertyPayload) => {
+    const optimisticProperty = {
+      id: generatePropertyId(),
+      status: 'pending',
+      rating: 0,
+      reviews: [],
+      createdAt: new Date().toISOString(),
+      ...propertyPayload
+    }
+
+    if (apiClient.isEnabled) {
+      try {
+        const response = await apiClient.post('/properties', propertyPayload)
+        if (response) {
+          setProperties((prev) => [response, ...prev])
+          return response
+        }
+      } catch (remoteError) {
+        setError(remoteError.message || 'Failed to save property remotely. Stored locally instead.')
+      }
+    }
+
+    setProperties((prev) => [optimisticProperty, ...prev])
+    return optimisticProperty
+  }
+
+  const updateProperty = async (propertyId, updates) => {
+    if (apiClient.isEnabled) {
+      try {
+        const response = await apiClient.patch(`/properties/${propertyId}`, updates)
+        if (response) {
+          setProperties((prev) => prev.map((property) => (property.id === propertyId ? response : property)))
+          return response
+        }
+      } catch (remoteError) {
+        setError(remoteError.message || 'Failed to update property remotely. Local state updated instead.')
+      }
+    }
+
+    setProperties((prev) => prev.map((property) => (property.id === propertyId ? { ...property, ...updates } : property)))
+    return getPropertyById(propertyId)
+  }
+
+  const deleteProperty = async (propertyId) => {
+    if (apiClient.isEnabled) {
+      try {
+        await apiClient.delete(`/properties/${propertyId}`)
+      } catch (remoteError) {
+        setError(remoteError.message || 'Failed to delete property remotely. Local state updated.')
+      }
+    }
+
+    setProperties((prev) => prev.filter((property) => property.id !== propertyId))
+  }
 
   const addReview = async (propertyId, review) => {
     let createdReview = {
@@ -204,6 +320,9 @@ export const MarketplaceProvider = ({ children }) => {
       error,
       searchProperties,
       getPropertyById,
+      createProperty,
+      updateProperty,
+      deleteProperty,
       addReview,
       addBooking,
       updateBooking,

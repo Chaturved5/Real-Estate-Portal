@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 const formatPriceCr = (price) => `₹${(price / 10000000).toFixed(2)} Cr`
 
@@ -9,8 +10,8 @@ const PropertyCard = ({ property, onView }) => (
       <div>
         <h3 className="text-lg sm:text-xl font-semibold text-gray-800 mb-1 line-clamp-2">{property.title}</h3>
         <p className="text-gray-500 text-xs sm:text-sm flex items-center">
-          <span className="mr-1 sm:mr-2" aria-hidden="true">
-            📍
+          <span className="mr-1 sm:mr-2 text-green-700" aria-hidden="true">
+            <FontAwesomeIcon icon="location-dot" />
           </span>
           {property.city} • {property.location}
         </p>
@@ -22,7 +23,10 @@ const PropertyCard = ({ property, onView }) => (
       <p className="text-xl sm:text-2xl font-bold text-green-700">{formatPriceCr(property.price)}</p>
       <p className="text-gray-600 text-xs sm:text-sm line-clamp-2">{property.highlights[0]}</p>
       <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500">
-        <span>⭐ {property.rating.toFixed(1)}</span>
+        <span className="flex items-center gap-1 text-amber-500 font-semibold">
+          <FontAwesomeIcon icon="star" />
+          <span className="text-gray-700">{property.rating.toFixed(1)}</span>
+        </span>
         <span>{property.reviews.length} reviews</span>
       </div>
       <div className="grid grid-cols-2 gap-2 pt-2">

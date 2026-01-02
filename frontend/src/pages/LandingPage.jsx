@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import PropertyCard from "../components/PropertyCard";
 import { useMarketplace } from "../context/MarketplaceContext.jsx";
 
@@ -18,7 +19,7 @@ const Toast = ({ message, onClose }) => {
 
 const FeatureCard = ({ icon, title, description }) => (
   <div className="theme-card rounded-xl sm:rounded-2xl p-6 sm:p-8 h-full hover:-translate-y-1 transition-transform duration-300">
-    <div className="text-4xl sm:text-5xl mb-3 sm:mb-4" aria-hidden="true">
+    <div className="text-4xl sm:text-5xl mb-3 sm:mb-4 text-green-700" aria-hidden="true">
       {icon}
     </div>
     <h3 className="text-lg sm:text-xl font-semibold text-green-900 mb-2 sm:mb-3">
@@ -209,9 +210,10 @@ const LandingPage = () => {
 
                   <button
                     type="submit"
-                    className="w-full bg-green-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-green-700 transition-colors duration-200 shadow-lg shadow-green-600/30"
+                    className="w-full bg-green-600 text-white py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-green-700 transition-colors duration-200 shadow-lg shadow-green-600/30 inline-flex items-center justify-center gap-2"
                   >
-                    🔍 Search Properties
+                    <FontAwesomeIcon icon="magnifying-glass" />
+                    <span>Search Properties</span>
                   </button>
                 </form>
                 <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -246,17 +248,17 @@ const LandingPage = () => {
             </h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               <FeatureCard
-                icon="⚡"
+                icon={<FontAwesomeIcon icon="bolt" />}
                 title="Quick Search"
                 description="Find your ideal property with advanced filters for location, price, type, and amenities. Save time with smart search results."
               />
               <FeatureCard
-                icon="🛡️"
+                icon={<FontAwesomeIcon icon="shield-halved" />}
                 title="Verified Owners & Brokers"
                 description="Every property owner and broker is verified through our rigorous KYC process, ensuring trust and transparency."
               />
               <FeatureCard
-                icon="💳"
+                icon={<FontAwesomeIcon icon="credit-card" />}
                 title="Secure Payments"
                 description="Book properties with confidence using our integrated payment gateway. All transactions are secure and trackable."
               />
@@ -264,7 +266,7 @@ const LandingPage = () => {
           </div>
         </section>
 
-        <section className="py-8 sm:py-12 md:py-16 bg-amber-50/60">
+        <section className="py-8 sm:py-12 md:py-16 bg-white-50/60">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
               <div className="space-y-4">
@@ -283,7 +285,7 @@ const LandingPage = () => {
                 <ul className="space-y-3 text-sm sm:text-base text-gray-700">
                   <li className="flex items-start gap-3">
                     <span className="text-green-700" aria-hidden="true">
-                      🔑
+                      <FontAwesomeIcon icon="key" />
                     </span>
                     <span>
                       Role-aware workflows guide you from offer to handover
@@ -292,7 +294,7 @@ const LandingPage = () => {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-green-700" aria-hidden="true">
-                      📄
+                      <FontAwesomeIcon icon="file-signature" />
                     </span>
                     <span>
                       Auto-generated checklists ensure documents, deposits, and
@@ -301,7 +303,7 @@ const LandingPage = () => {
                   </li>
                   <li className="flex items-start gap-3">
                     <span className="text-green-700" aria-hidden="true">
-                      🤝
+                      <FontAwesomeIcon icon="handshake" />
                     </span>
                     <span>
                       Smart notifications keep buyers, owners, and brokers
@@ -359,9 +361,10 @@ const LandingPage = () => {
               </h2>
               <Link
                 to="/marketplace"
-                className="text-sm sm:text-base text-green-600 hover:text-green-700 font-medium transition-colors"
+                className="text-sm sm:text-base text-green-600 hover:text-green-700 font-medium transition-colors inline-flex items-center gap-2"
               >
-                View All →
+                <span>View All</span>
+                <FontAwesomeIcon icon="arrow-right-long" />
               </Link>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
@@ -394,9 +397,10 @@ const LandingPage = () => {
             <button
               type="button"
               onClick={handleListProperty}
-              className="bg-white text-green-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-amber-50 transition-colors duration-200 shadow-lg"
+              className="bg-white text-green-900 px-6 sm:px-8 py-3 sm:py-4 rounded-lg text-base sm:text-lg font-semibold hover:bg-amber-50 transition-colors duration-200 shadow-lg inline-flex items-center gap-2 justify-center"
             >
-              📋 List Your Property
+              <FontAwesomeIcon icon="clipboard-list" />
+              <span>List Your Property</span>
             </button>
           </div>
         </section>

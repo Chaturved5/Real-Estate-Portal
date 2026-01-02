@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { useNotifications } from '../context/NotificationContext.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 
@@ -28,7 +29,7 @@ const NotificationBell = () => {
         aria-expanded={open}
         aria-label={unreadCount ? `${unreadCount} unread notifications` : 'Notifications'}
       >
-        🔔
+        <FontAwesomeIcon icon="bell" className="text-lg" />
         {!!unreadCount && (
           <span className="absolute -top-1 -right-1 inline-flex items-center justify-center w-4 h-4 rounded-full bg-green-600 text-[10px] text-white">
             {unreadCount}

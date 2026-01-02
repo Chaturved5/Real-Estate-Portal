@@ -171,6 +171,14 @@ const Profile = () => {
             <p className="font-semibold text-green-900">Current role</p>
             <p className="text-xs uppercase tracking-wide text-green-700">{user.role}</p>
             <p className="text-xs text-gray-600 break-all">{user.email}</p>
+            {user.role !== 'admin' && (
+              <Link
+                to="/verification"
+                className="inline-flex items-center justify-center mt-2 w-full rounded-lg bg-green-600 text-white text-xs font-semibold px-3 py-2 hover:bg-green-700"
+              >
+                Complete profile & KYC
+              </Link>
+            )}
           </div>
         </header>
 
@@ -331,6 +339,21 @@ const Profile = () => {
           </div>
 
           <aside className="space-y-6">
+            {user.role !== 'admin' && (
+              <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 space-y-4">
+                <h2 className="text-lg font-semibold text-green-900">Verification & KYC</h2>
+                <p className="text-sm text-gray-600">Finish KYC to unlock bookings (buyers) or publishing/assignment (owners/agents).</p>
+                <div className="flex flex-col gap-2 text-sm">
+                  <Link to="/verification" className="inline-flex items-center justify-center rounded-lg bg-green-600 text-white px-4 py-2 font-semibold shadow-sm hover:bg-green-700">
+                    Go to verification center
+                  </Link>
+                  <Link to="/verification/status" className="inline-flex items-center justify-center rounded-lg border border-green-200 text-green-800 px-4 py-2 font-semibold hover:bg-green-50">
+                    View status
+                  </Link>
+                </div>
+              </div>
+            )}
+
             <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-6 space-y-4">
               <h2 className="text-lg font-semibold text-green-900">Performance snapshot</h2>
               {user.role === 'owner' && ownerInsights && (
